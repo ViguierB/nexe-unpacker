@@ -8,9 +8,17 @@
     "build": "tsc",
     "start": "node ./index.js",
     "build:lib": "cd lib && npm run build",
+    "preconfigure": "npm run configure:lib",
+    "configure": "npm i",
+    "configure:lib": "cd lib && npm i",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Benjamin Viguier",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.holidev.net/ben/nexe-unpacker"
+  },
+  "homepage": "https://gitlab.holidev.net/ben/nexe-unpacker#readme",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.8",
