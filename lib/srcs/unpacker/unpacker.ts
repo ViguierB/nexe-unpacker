@@ -1,10 +1,10 @@
 import path from "path";
 import { IFileLoader } from "../api/file_loader";
+import { IFileWriterFactory } from "../api/file_writer_factory";
 import { ILogger } from "../api/logger";
 import { INexeReader } from "../api/nexe_reader";
 import { IParameters } from "../api/parameters";
 import { IUnpacker } from "../api/unpacker";
-import { FileWriter } from "./file_writer";
 
 export class Unpacker implements IUnpacker {
 
@@ -13,6 +13,7 @@ export class Unpacker implements IUnpacker {
     private _logger: ILogger,
     private _fileLoader: IFileLoader,
     private _reader: INexeReader,
+    private _fileWriterFactory: IFileWriterFactory,
   ) {
     this._logger.log("Parameters: ", this._parameters);
   }
@@ -25,14 +26,16 @@ export class Unpacker implements IUnpacker {
       throw new Error("file not loaded: ${this._reader.strError}");
     }
 
+    await this._fileWriterFactory.prepare();
     await this._reader.foreachAsync(async (e, buffer) => {
-      const outpath = path.join(this._parameters.outdir, e.filename);
+      const outpath = path.join(this._parameters.out, e.filename);
       this._logger.log(outpath);
-      const writer = await FileWriter.make(outpath);
+      const writer = await this._fileWriterFactory.addFile(outpath);
 
       await writer.write(buffer);
       await writer.close();
     });
+    await this._fileWriterFactory.close();
   }
   
 }

@@ -1,5 +1,4 @@
 import { injectable } from "tsyringe";
-import { ILogger } from "../../api/logger";
 import { LogLevel } from "../../api/log_level";
 import { IParameters } from "../../api/parameters";
 
@@ -7,8 +6,10 @@ import { IParameters } from "../../api/parameters";
 export class ParametersProvider implements IParameters {
   target?: string | undefined;
   stdin!: boolean;
-  outdir!: string;
+  out!: string;
   logLevel!: LogLevel;
+  archive!: boolean;
+  compressionLevel!: number;
   
   constructor(
     parameters: IParameters

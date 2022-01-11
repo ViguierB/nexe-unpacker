@@ -22,19 +22,33 @@ export async function getArgv(argv: string[]) {
       default: false,
       desc: "input file should be given from stdin (true if target is not provided)"
     })
-    .options("out-dir", {
+    .options("out", {
       alias: "o",
       string: true,
       default: "./out"
+    })
+    .options("archive", {
+      alias: "a",
+      desc: "write extracted files into an archive",
+      boolean: true,
+      default: false,
+    })
+    .options("compressionLevel", {
+      alias: "c",
+      desc: "if archive is true, set the archive compression level",
+      number: true,
+      default: 9
     })
     .help();
 
   const procArgs = await procArgsBuilder.argv;
 
   parameters.logLevel = Math.min(procArgs.verbose, LogLevel.DEBUG);
-  parameters.outdir = procArgs['out-dir'];
+  parameters.out = procArgs.out;
   parameters.target = procArgs.target;
   parameters.stdin = procArgs.stdin || !parameters.target;
+  parameters.archive = procArgs.archive;
+  parameters.compressionLevel = procArgs.compressionLevel;
 
   if (parameters.stdin) {
     parameters.target = undefined;

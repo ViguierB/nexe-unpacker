@@ -1,6 +1,5 @@
 import { DependencyContainer } from "tsyringe";
 import { IFileLoader } from "../../api/file_loader";
-import { IParameters } from "../../api/parameters";
 import { ParametersProvider } from "./parameters_provider";
 import { RegularFileLoaderProvider } from "./regular_file_loader_provider";
 import { StdinLoaderProvider } from "./stdin_loader_provider";
