@@ -1,2 +1,3 @@
-require("module-alias/register");
-require("./dist/main");
+#!/usr/bin/env node
+
+require("./dist/srcs/main");

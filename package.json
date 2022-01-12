@@ -3,36 +3,37 @@
   "version": "0.0.0",
   "description": "A simple nexe unpacker",
   "main": "index.js",
+  "bin": {
+    "nexe_unpacker": "index.js"
+  },
   "scripts": {
-    "prebuild": "npm run build:lib",
     "build": "tsc",
     "start": "node ./index.js",
-    "build:lib": "cd lib && npm run build",
-    "preconfigure": "npm run configure:lib",
     "configure": "npm i",
-    "configure:lib": "cd lib && npm i",
+    "prepackage": "npm run build",
+    "package": "rm -fr package && mkdir package && cp -r package.json LICENSE index.js dist package/",
+    "predopublish": "npm run package",
+    "dopublish": "cd package && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Benjamin Viguier",
+  "author": "Benjamin Viguier <ben@holidev.net>",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.holidev.net/ben/nexe-unpacker"
+    "url": "git://gitlab.holidev.net/ben/nexe-unpacker"
   },
   "homepage": "https://gitlab.holidev.net/ben/nexe-unpacker#readme",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.8",
     "@types/yargs": "^17.0.8",
+    "@types/archiver": "^5.3.1",
     "typescript": "^4.5.4"
   },
   "dependencies": {
     "module-alias": "^2.2.2",
-    "nexe_unpacker_lib": "^0.0.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.6.0",
-    "yargs": "^17.3.1"
-  },
-  "_moduleAliases": {
-    "@lib": "lib/dist"
+    "yargs": "^17.3.1",
+    "archiver": "^5.3.0"
   }
 }

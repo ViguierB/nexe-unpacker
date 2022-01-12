@@ -1,6 +1,6 @@
 import yargs from 'yargs';
-import { LogLevel } from '@lib/api/log_level';
-import { IParameters } from '@lib/api/parameters';
+import { LogLevel } from '../lib/api/log_level';
+import { IParameters } from '../lib/api/parameters';
 
 export async function getArgv(argv: string[]) {
   const usage = 'Usage:\n  $0 [options]';
