@@ -1,0 +1,22 @@
+image: node:latest
+
+stages:
+  - build
+  - test
+
+cache:
+  paths:
+    - node_modules/
+    - dist/
+
+build:
+  stage: "build",
+  script:
+    - "npm i"
+    - "npm run build"
+
+test:
+  stage: "test"
+  script:
+   - "npm i"
+   - "npm run test"

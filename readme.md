@@ -1,6 +1,6 @@
 # NEXE UNPACKER
 
-A simple nodejs script that reverse nexe executable package. (windows / macos binaries was not tested but should work with some little changes).
+A simple nodejs script that reverse nexe executable package.
 
 ## Install
 
