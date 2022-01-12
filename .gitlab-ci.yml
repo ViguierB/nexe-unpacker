@@ -10,7 +10,7 @@ cache:
     - dist/
 
 build:
-  stage: "build",
+  stage: "build"
   script:
     - "npm i"
     - "npm run build"
