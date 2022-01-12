@@ -35,52 +35,39 @@ function getParameters(osBinName: string) {
 describe("unpacker", function() {
   var expectedIndexJsHash = "08d6982da9d92398b7a912b4d70ae8f1ba8a15fb"
 
+  async function unpackAndTestIndexJs(osBinName: string) {
+    await doUnpack(getParameters(osBinName));
+
+    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
+    assert.equal(expectedIndexJsHash, fileHash);
+  }
+
   this.afterAll(async function() {
-    // await fs.rm("/tmp/out", { recursive: true });
+    await fs.rm("/tmp/out", { recursive: true });
   });
 
   it("Should unpack linux x64 binary", async function() {
     var osBinName = "linux-x64"
-
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    assert.equal(expectedIndexJsHash, fileHash);
+    await unpackAndTestIndexJs(osBinName);
   });
 
   it("Should unpack linux x86 binary", async function() {
     var osBinName = "linux-x86"
-
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    assert.equal(expectedIndexJsHash, fileHash);
+    await unpackAndTestIndexJs(osBinName);
   });
 
   it("Should unpack win x64 binary", async function() {
     var osBinName = "win-x64.exe"
-
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    assert.equal(expectedIndexJsHash, fileHash);
+    await unpackAndTestIndexJs(osBinName);
   });
 
   it("Should unpack win x86 binary", async function() {
     var osBinName = "win-x86.exe"
-
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    assert.equal(expectedIndexJsHash, fileHash);
+    await unpackAndTestIndexJs(osBinName);
   });
 
   it("Should unpack macos binary", async function() {
     var osBinName = "macos"
-
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    assert.equal(expectedIndexJsHash, fileHash);
+    await unpackAndTestIndexJs(osBinName);
   });
 });
