@@ -1,6 +1,6 @@
 {
   "name": "nexe_unpacker",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "A simple nexe unpacker",
   "main": "index.js",
   "bin": {
