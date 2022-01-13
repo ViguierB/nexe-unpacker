@@ -1,6 +1,6 @@
 {
   "name": "nexe_unpacker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A simple nexe unpacker",
   "main": "index.js",
   "bin": {
@@ -10,8 +10,8 @@
     "build": "tsc",
     "start": "node ./index.js",
     "configure": "npm i",
-    "prepackage": "npm run build",
-    "package": "rm -fr package && mkdir package && cp -r package.json LICENSE index.js dist package/",
+    "prepackage": "rm -fr package && mkdir package",
+    "package": "cp -r package.json LICENSE readme.md index.js dist package/",
     "predopublish": "npm run package",
     "dopublish": "cd package && npm publish",
     "test": "mocha -r ts-node/register **/*.spec.ts"
