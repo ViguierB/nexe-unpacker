@@ -1,5 +1,7 @@
 import { ILogger } from "../api/logger";
 import { INexeReader, NexeVirtualFileSystem, NexeVirtualFileSystemElement } from "../api/nexe_reader";
+import { extractFirstFunctionFormBuffer } from './utils/function_extractor';
+import vm from 'vm';
 
 const DOUBLE_LENGTH = 8;
 const FSTABLE_LENGTH = 16;
@@ -7,7 +9,6 @@ const FSTABLE_LENGTH = 16;
 export class NexeReader implements INexeReader {
   private _codeBuffer?: Buffer;
   private _bundleBuffer?: Buffer;
-  private _offset = 0;
   
   public get _fullBuffer() {
     if (!this._codeBuffer || !this._bundleBuffer) {
@@ -27,20 +28,25 @@ export class NexeReader implements INexeReader {
   
   get isFileLoaded() { return !!this._virtualFileSystem; }
 
-  /**
-   * Work but ugly as fck !
-   * Should be changed to something stronger !
-   */
-  private parseTable() {
-    const head = "!(function () {process.__nexe = ";
-    const to = this._codeBuffer?.indexOf(";")!;
-    const code = this._codeBuffer?.subarray(head.length, to).toLocaleString()!;
-    const table: { resources: { [path: string]: [number, number] } } = JSON.parse(code);
-    
-    this._virtualFileSystem = Object.keys(table.resources).map(key => ({
+  private parseTableUsingVM() {
+    if (!this._codeBuffer) {
+      throw new Error("No nexe code was found !!");
+    }
+
+    const strScript = extractFirstFunctionFormBuffer(this._codeBuffer);
+    const script = new vm.Script(strScript.toLocaleString());
+    const context = {
+      process: {
+        __nexe: {} as { resources: { [path: string]: [number, number] } }
+      }
+    };
+
+    vm.createContext(context);
+    script.runInContext(context);
+    this._virtualFileSystem = Object.keys(context.process.__nexe.resources).map(key => ({
       filename: key,
-      from: table.resources[key][0],
-      to: table.resources[key][1],
+      from: context.process.__nexe.resources[key][0],
+      to: context.process.__nexe.resources[key][1],
     }));
   }
   
@@ -54,9 +60,9 @@ export class NexeReader implements INexeReader {
     this._codeBuffer = buffer.subarray(buffer.length - (codeSize + bundleSize + padding), buffer.length - (bundleSize + padding));
     this._bundleBuffer = buffer.subarray(buffer.length - (bundleSize + padding), buffer.length - (padding));
 
-    this._logger.log("File has been loaded: ", { codeSize, bundleSize });
-
-    this.parseTable();
+    
+    this.parseTableUsingVM();
+    this._logger.log("File has been loaded: ", { codeSize, bundleSize, files: this._virtualFileSystem?.length });
   }
   
   async foreachAsync(func: (element: NexeVirtualFileSystemElement, buffer: Buffer) => Promise<void>): Promise<void> {

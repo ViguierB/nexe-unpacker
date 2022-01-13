@@ -11,7 +11,7 @@ export class RegularFileLoader implements IFileLoader {
   async load(): Promise<Buffer> {
     const buffer = await fs.readFile(this._filename, { flag: "r" });
     
-    await this._logger.log(`${this._filename} has been successfully readen`);
+    await this._logger.log(`${this._filename} has been successfully loaded`);
     return buffer;
   }
   
