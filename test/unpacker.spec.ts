@@ -38,11 +38,9 @@ describe("unpacker", function() {
   var expectedIndexJsHash = "08d6982da9d92398b7a912b4d70ae8f1ba8a15fb"
 
   async function unpackAndTestIndexJs(osBinName: string) {
-    await doUnpack(getParameters(osBinName)).then(() => {
-      return getFileHash(`/tmp/out/${osBinName}/index.js`).then(fileHash => {
-        assert.equal(expectedIndexJsHash, fileHash);
-      })
-    });
+    await doUnpack(getParameters(osBinName));
+    const fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`);
+    assert.equal(expectedIndexJsHash, fileHash);
   }
 
   it("Should unpack linux x64 binary", async function() {
