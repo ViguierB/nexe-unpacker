@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { promises as fs } from "fs";
 import assert from "assert";
 import path from "path";
+import { it } from "mocha";
 
 async function doUnpack(parameters: IParameters) {
   const appContainer = makeUnpackerContainer(parameters);
@@ -37,11 +38,11 @@ describe("unpacker", function() {
   var expectedIndexJsHash = "08d6982da9d92398b7a912b4d70ae8f1ba8a15fb"
 
   async function unpackAndTestIndexJs(osBinName: string) {
-    await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
-    await fs.rm(`/tmp/out/${osBinName}`, { recursive: true })
-    assert.equal(expectedIndexJsHash, fileHash);
+    await doUnpack(getParameters(osBinName)).then(() => {
+      return getFileHash(`/tmp/out/${osBinName}/index.js`).then(fileHash => {
+        assert.equal(expectedIndexJsHash, fileHash);
+      })
+    });
   }
 
   it("Should unpack linux x64 binary", async function() {
