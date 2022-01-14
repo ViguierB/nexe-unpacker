@@ -3,7 +3,7 @@ import { LogLevel } from '../lib/api/log_level';
 import { IParameters } from '../lib/api/parameters';
 
 export async function getArgv(argv: string[]) {
-  const usage = 'Usage:\n  $0 [options]';
+  const usage = 'Usage:\n  $0 [options] <target>';
   let parameters = {} as IParameters;
 
   const procArgsBuilder = yargs(argv)
@@ -11,11 +11,6 @@ export async function getArgv(argv: string[]) {
     .options('verbose', {
       alias: "v",
       count: true
-    })
-    .options("target", {
-      alias: "t" ,
-      string: true,
-      desc: "The nexe file that has to be unpacked"
     })
     .options("stdin", {
       boolean: true,
@@ -39,19 +34,24 @@ export async function getArgv(argv: string[]) {
       number: true,
       default: 9
     })
+  
     .help();
 
   const procArgs = await procArgsBuilder.argv;
 
   parameters.logLevel = Math.min(procArgs.verbose, LogLevel.DEBUG);
   parameters.out = procArgs.out;
-  parameters.target = procArgs.target;
-  parameters.stdin = procArgs.stdin || !parameters.target;
+  parameters.target = (procArgs._.filter(v => typeof v === "string") as string[])[0];
+  parameters.stdin = procArgs.stdin;
   parameters.archive = procArgs.archive;
   parameters.compressionLevel = procArgs.compressionLevel;
 
   if (parameters.stdin) {
     parameters.target = undefined;
+  }
+
+  if (!parameters.stdin && !parameters.target) {
+    throw new Error("You must provide an input file !")
   }
 
   return parameters;
