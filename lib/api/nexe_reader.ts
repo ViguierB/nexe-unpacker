@@ -1,15 +1,7 @@
-export type NexeVirtualFileSystemElement = {
-  filename: string,
-  from: number,
-  to: number
-}
+import { NexeVirtualFileSystemIterator } from './nexe_virtual_fs';
 
-export type NexeVirtualFileSystem = NexeVirtualFileSystemElement[];
-
-export interface INexeReader {
-  readonly virtualFileSystem?: NexeVirtualFileSystem;
+export interface INexeReader extends NexeVirtualFileSystemIterator {
   readonly isFileLoaded: boolean;
 
   read(buffer: Buffer): Promise<void>;
-  foreachAsync(func: (element: NexeVirtualFileSystemElement, buffer: Buffer) => Promise<void>): Promise<void>;
 }

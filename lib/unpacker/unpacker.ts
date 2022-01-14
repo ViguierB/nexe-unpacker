@@ -27,14 +27,14 @@ export class Unpacker implements IUnpacker {
     }
 
     await this._fileWriterFactory.prepare();
-    await this._reader.foreachAsync(async (e, buffer) => {
-      const outpath = path.join(this._parameters.out, e.filename);
+    Promise.all([...this._reader].map(async ([ buf, { filename } ]) => {
+      const outpath = path.join(this._parameters.out, filename);
       this._logger.log(outpath);
       const writer = await this._fileWriterFactory.addFile(outpath);
-
-      await writer.write(buffer);
+  
+      await writer.write(buf);
       await writer.close();
-    });
+    }));
     await this._fileWriterFactory.close();
   }
   

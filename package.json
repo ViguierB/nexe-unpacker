@@ -14,7 +14,7 @@
     "package": "cp -r package.json LICENSE readme.md index.js dist package/",
     "predopublish": "npm run package",
     "dopublish": "cd package && npm publish",
-    "test": "mocha -r ts-node/register **/*.spec.ts"
+    "test": "mocha -r ts-node/register lib/**/*.spec.ts test/**/*.spec.ts"
   },
   "author": "Benjamin Viguier <ben@holidev.net>",
   "repository": {

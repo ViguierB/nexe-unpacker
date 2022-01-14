@@ -1,11 +1,12 @@
-import { makeUnpackerContainer } from "../dist/lib/di/tsyringe/container";
-import { UnpackerProvider } from "../dist/lib/di/tsyringe/unpacker_provider";
-import { IParameters } from "../dist/lib/api/parameters";
-import { IUnpacker } from "../dist/lib/api/unpacker";
-import { LogLevel } from "../dist/lib/api/log_level";
+import { makeUnpackerContainer } from "../lib/di/tsyringe/container";
+import { UnpackerProvider } from "../lib/di/tsyringe/unpacker_provider";
+import { IParameters } from "../lib/api/parameters";
+import { IUnpacker } from "../lib/api/unpacker";
+import { LogLevel } from "../lib/api/log_level";
 import crypto from "crypto";
 import { promises as fs } from "fs";
 import assert from "assert";
+import path from "path";
 
 async function doUnpack(parameters: IParameters) {
   const appContainer = makeUnpackerContainer(parameters);
@@ -39,12 +40,9 @@ describe("unpacker", function() {
     await doUnpack(getParameters(osBinName));
 
     var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
+    await fs.rm(`/tmp/out/${osBinName}`, { recursive: true })
     assert.equal(expectedIndexJsHash, fileHash);
   }
-
-  this.afterAll(async function() {
-    await fs.rm("/tmp/out", { recursive: true });
-  });
 
   it("Should unpack linux x64 binary", async function() {
     var osBinName = "linux-x64"

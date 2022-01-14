@@ -2,21 +2,43 @@
 const PL_CHARCODE = "(".charCodeAt(0);
 const PR_CHARCODE = ")".charCodeAt(0);
 
-export function extractFirstFunctionFormBuffer(codeSection: Buffer) {
+/**
+ * extract all auto functions `(() => {...})()` in string
+ * 
+ * dot not handle internal string !! `(() => { console.log(")"); })()` will not be parsed properly
+ * @param codeSection
+ */
+export function *extractAutoFunctionFormBuffer(codeSection: Buffer) {
   let offset = 0;
-  let parenthesisCounter = 1;
+  let start = 0;
+  let parenthesisCounter = 0;
   let it = codeSection[Symbol.iterator]();
-  let cont = true;
+  let found = false;
   let itResult: IteratorResult<number>;
 
-  while (it.next().value !== PL_CHARCODE) { ++offset; }
-  for (;cont && !(itResult = it.next()).done; ++offset) {
+  const walkToStart = () => {
+    while (it.next().value !== PL_CHARCODE) { ++offset; }
+    start = offset;
+    ++offset; // the '('
+    parenthesisCounter = 1;
+  }
+
+  walkToStart();
+  while (!(itResult = it.next()).done) {
     const c = itResult.value;
 
     switch (c) {
       case PL_CHARCODE: ++parenthesisCounter; break;
-      case PR_CHARCODE: cont = --parenthesisCounter > 0; break;
+      case PR_CHARCODE: found = (--parenthesisCounter <= 0); break;
+    }
+
+    ++offset;
+    if (found) {
+      found = false;
+      offset += 2 /* the last "()" in (() => {...})() */
+      it.next(); it.next();
+      yield codeSection.subarray(start, offset);
+      walkToStart();
     }
   }
-  return codeSection.subarray(0, offset + 3 /* last char + "()" */);
 }
