@@ -12,12 +12,11 @@ npm i -g nexe_unpacker
 ```bash
 cat "the/file/you/want/to/unpack" | nexe_unpacker --stdin
 ## or
-nexe_unpacker -t "the/file/you/want/to/unpack"
+nexe_unpacker "the/file/you/want/to/unpack"
 ```
 
 ## Parameters
 
- - `--target="$path", -t "$path"` : the binary file you want to unpack
  - `--stdin` : tell the unpacker that target file has to be readen from the standard input
  - `--out="$path", -o "$path` : the output path (file if `--archive` is __on__)
  - `--archive, -a` : write output inside an archive (.zip)

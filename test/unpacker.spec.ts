@@ -1,11 +1,15 @@
-import { makeUnpackerContainer } from "../dist/lib/di/tsyringe/container";
-import { UnpackerProvider } from "../dist/lib/di/tsyringe/unpacker_provider";
-import { IParameters } from "../dist/lib/api/parameters";
-import { IUnpacker } from "../dist/lib/api/unpacker";
-import { LogLevel } from "../dist/lib/api/log_level";
+import { makeUnpackerContainer } from "../lib/di/tsyringe/container";
+import { UnpackerProvider } from "../lib/di/tsyringe/unpacker_provider";
+import { IParameters } from "../lib/api/parameters";
+import { IUnpacker } from "../lib/api/unpacker";
+import { LogLevel } from "../lib/api/log_level";
 import crypto from "crypto";
 import { promises as fs } from "fs";
 import assert from "assert";
+import path from "path";
+import { it } from "mocha";
+
+const OUTDIR = "./test/out";
 
 async function doUnpack(parameters: IParameters) {
   const appContainer = makeUnpackerContainer(parameters);
@@ -27,8 +31,8 @@ function getParameters(osBinName: string) {
     "compressionLevel": 0,
     "stdin": false,
     "logLevel": LogLevel.NONE,
-    "out": `/tmp/out/${osBinName}`,
-    "target": `./test/binaries/${osBinName}`
+    "out": path.resolve(OUTDIR, osBinName),
+    "target": path.resolve('./test/binaries', osBinName)
   }
 }
 
@@ -37,14 +41,13 @@ describe("unpacker", function() {
 
   async function unpackAndTestIndexJs(osBinName: string) {
     await doUnpack(getParameters(osBinName));
-
-    var fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`)
+    const fileHash = await getFileHash(path.resolve(OUTDIR, osBinName, 'index.js'));
     assert.equal(expectedIndexJsHash, fileHash);
   }
 
-  this.afterAll(async function() {
-    await fs.rm("/tmp/out", { recursive: true });
-  });
+  this.afterAll(async () => {
+    await fs.rm(OUTDIR, { recursive: true });
+  })
 
   it("Should unpack linux x64 binary", async function() {
     var osBinName = "linux-x64"

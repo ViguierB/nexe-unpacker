@@ -1,5 +1,8 @@
 import { ILogger } from "../api/logger";
-import { INexeReader, NexeVirtualFileSystem, NexeVirtualFileSystemElement } from "../api/nexe_reader";
+import { INexeReader } from "../api/nexe_reader";
+import { NexeVirtualFileSystemElement } from "../api/nexe_virtual_fs";
+import { extractAutoFunctionFormBuffer } from './utils/function_extractor';
+import vm from 'vm';
 
 const DOUBLE_LENGTH = 8;
 const FSTABLE_LENGTH = 16;
@@ -7,19 +10,8 @@ const FSTABLE_LENGTH = 16;
 export class NexeReader implements INexeReader {
   private _codeBuffer?: Buffer;
   private _bundleBuffer?: Buffer;
-  private _offset = 0;
-  
-  public get _fullBuffer() {
-    if (!this._codeBuffer || !this._bundleBuffer) {
-      return undefined;
-    }
-    return Buffer.concat([this._codeBuffer, this._bundleBuffer]);
-  }
 
-  private _virtualFileSystem?: NexeVirtualFileSystem;
-  get virtualFileSystem() {
-    return this._virtualFileSystem;
-  };
+  private _virtualFileSystem?: { [path: string]: [number, number] };
 
   constructor(
     private _logger: ILogger
@@ -27,21 +19,28 @@ export class NexeReader implements INexeReader {
   
   get isFileLoaded() { return !!this._virtualFileSystem; }
 
-  /**
-   * Work but ugly as fck !
-   * Should be changed to something stronger !
-   */
-  private parseTable() {
-    const head = "!(function () {process.__nexe = ";
-    const to = this._codeBuffer?.indexOf(";")!;
-    const code = this._codeBuffer?.subarray(head.length, to).toLocaleString()!;
-    const table: { resources: { [path: string]: [number, number] } } = JSON.parse(code);
+  private parseTableUsingVM() {
+    if (!this._codeBuffer) {
+      throw new Error("No nexe code was found !!");
+    }
+
+    const autoFuncParser = extractAutoFunctionFormBuffer(this._codeBuffer);
+    const strScriptIt = autoFuncParser.next();
     
-    this._virtualFileSystem = Object.keys(table.resources).map(key => ({
-      filename: key,
-      from: table.resources[key][0],
-      to: table.resources[key][1],
-    }));
+    if (!strScriptIt.done) {
+      const script = new vm.Script(strScriptIt.value.toLocaleString());
+      const context = {
+        process: {
+          __nexe: {} as { resources: { [path: string]: [number, number] } }
+        }
+      };
+  
+      vm.createContext(context);
+      script.runInContext(context);
+      this._virtualFileSystem = context.process.__nexe.resources;
+    } else {
+      throw new Error("Unable to find the nexe global setter function")
+    }
   }
   
   async read(buffer: Buffer): Promise<void> {
@@ -54,24 +53,34 @@ export class NexeReader implements INexeReader {
     this._codeBuffer = buffer.subarray(buffer.length - (codeSize + bundleSize + padding), buffer.length - (bundleSize + padding));
     this._bundleBuffer = buffer.subarray(buffer.length - (bundleSize + padding), buffer.length - (padding));
 
-    this._logger.log("File has been loaded: ", { codeSize, bundleSize });
-
-    this.parseTable();
+    this.parseTableUsingVM();
+    this._logger.log("File has been loaded: ", { codeSize, bundleSize, files: this._virtualFileSystem?.length });
   }
-  
-  async foreachAsync(func: (element: NexeVirtualFileSystemElement, buffer: Buffer) => Promise<void>): Promise<void> {
+
+  *next(): Iterator<[Buffer, NexeVirtualFileSystemElement]> {
     const fsbuffer = this._bundleBuffer;
 
-    if (!fsbuffer) {
-      throw new Error("please run the read() member before !")
+    if (!fsbuffer || !this._virtualFileSystem) {
+      throw new Error(
+        "Too soon! You have awakened me too soon, Executus!"
+        + "\n"
+        + "Run the INexeReader::read(Buffer) member before"
+      );
     }
 
-    await Promise.all(
-      this.virtualFileSystem!.map(async e => {
-        const buffer = fsbuffer.subarray(e.from, e.from + e.to);
+    for (let key of Object.keys(this._virtualFileSystem)) {
+      const e = {
+        filename: key,
+        from: this._virtualFileSystem[key][0],
+        to: this._virtualFileSystem[key][1],
+      };
+      const buffer = fsbuffer.subarray(e.from, e.from + e.to);
   
-        await func(e, buffer);
-      })
-    );
+      yield [ buffer, e ] as [Buffer, NexeVirtualFileSystemElement];
+    }
+  }
+
+  [Symbol.iterator]() {
+    return this.next();
   }
 }
