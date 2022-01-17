@@ -27,7 +27,7 @@ export class Unpacker implements IUnpacker {
     }
 
     await this._fileWriterFactory.prepare();
-    Promise.all([...this._reader].map(async ([ buf, { filename } ]) => {
+    await Promise.all([...this._reader].map(async ([ buf, { filename } ]) => {
       const outpath = path.join(this._parameters.out, filename);
       this._logger.log(outpath);
       const writer = await this._fileWriterFactory.addFile(outpath);

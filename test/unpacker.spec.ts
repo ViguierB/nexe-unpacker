@@ -9,6 +9,8 @@ import assert from "assert";
 import path from "path";
 import { it } from "mocha";
 
+const OUTDIR = "./test/out";
+
 async function doUnpack(parameters: IParameters) {
   const appContainer = makeUnpackerContainer(parameters);
   const unpacker = appContainer.resolve<IUnpacker>(UnpackerProvider);
@@ -29,8 +31,8 @@ function getParameters(osBinName: string) {
     "compressionLevel": 0,
     "stdin": false,
     "logLevel": LogLevel.NONE,
-    "out": `/tmp/out/${osBinName}`,
-    "target": `./test/binaries/${osBinName}`
+    "out": path.resolve(OUTDIR, osBinName),
+    "target": path.resolve('./test/binaries', osBinName)
   }
 }
 
@@ -39,9 +41,13 @@ describe("unpacker", function() {
 
   async function unpackAndTestIndexJs(osBinName: string) {
     await doUnpack(getParameters(osBinName));
-    const fileHash = await getFileHash(`/tmp/out/${osBinName}/index.js`);
+    const fileHash = await getFileHash(path.resolve(OUTDIR, osBinName, 'index.js'));
     assert.equal(expectedIndexJsHash, fileHash);
   }
+
+  this.afterAll(async () => {
+    await fs.rm(OUTDIR, { recursive: true });
+  })
 
   it("Should unpack linux x64 binary", async function() {
     var osBinName = "linux-x64"
