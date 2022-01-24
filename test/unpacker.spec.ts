@@ -33,7 +33,7 @@ function getParameters(osBinName: string) {
     "stdout": false,
     "logLevel": LogLevel.NONE,
     "out": path.resolve(OUTDIR, osBinName),
-    "target": path.resolve('./test/binaries', osBinName)
+    "target": [ path.resolve('./test/binaries', osBinName) ]
   }
 }
 

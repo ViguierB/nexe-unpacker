@@ -50,12 +50,6 @@ export class ArchiveFileWriterFactory implements IFileWriterFactory {
 
   async close() {
     await this._archive?.finalize();
-    await new Promise<void>((rs, rj) => {
-      this._output?.close(err => {
-        if (!!err) rj(err);
-        rs();
-      });
-    })
     this._archive = undefined;
     this._output = undefined;
   }

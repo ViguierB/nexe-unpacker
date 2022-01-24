@@ -1,8 +1,8 @@
 import { IFileLoader } from "../api/file_loader";
 
 export class StdinLoader implements IFileLoader {
-  load(): Promise<Buffer> {
-    return new Promise<Buffer>((resolve, reject) => {
+  load(): Promise<[Buffer, string][]> {
+    return new Promise<[Buffer, string][]>((resolve, reject) => {
       const chunks: Buffer[] = [];
 
       process.stdin.on("data", function (chunk) {
@@ -10,7 +10,7 @@ export class StdinLoader implements IFileLoader {
       });
     
       process.stdin.on("end", function () {
-        resolve(Buffer.concat(chunks));
+        resolve([ [ Buffer.concat(chunks), "__stdin" ] ]);
       });
 
       process.stdin.on("error", function (e) {

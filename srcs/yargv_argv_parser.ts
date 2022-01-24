@@ -46,7 +46,7 @@ export async function getArgv(argv: string[]) {
 
   parameters.logLevel = Math.min(procArgs.verbose, LogLevel.DEBUG);
   parameters.out = procArgs.out;
-  parameters.target = (procArgs._.filter(v => typeof v === "string") as string[])[0];
+  parameters.target = (procArgs._.filter(v => typeof v === "string") as string[]) || [];
   parameters.stdin = procArgs.stdin;
   parameters.archive = procArgs.archive;
   parameters.stdout =  procArgs.archive && procArgs.stdout;

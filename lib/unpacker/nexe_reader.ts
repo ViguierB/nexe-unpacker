@@ -1,13 +1,13 @@
 import { ILogger } from "../api/logger";
-import { INexeReader } from "../api/nexe_reader";
-import { NexeVirtualFileSystemElement } from "../api/nexe_virtual_fs";
+import { IBinaryReader } from "../api/binary_reader";
+import { BinaryVirtualFileSystemElement } from "../api/binary_virtual_fs";
 import { extractAutoFunctionFormBuffer } from './utils/function_extractor';
 import vm from 'vm';
 
 const DOUBLE_LENGTH = 8;
 const FSTABLE_LENGTH = 16;
 
-export class NexeReader implements INexeReader {
+export class NexeReader implements IBinaryReader {
   private _codeBuffer?: Buffer;
   private _bundleBuffer?: Buffer;
 
@@ -57,7 +57,7 @@ export class NexeReader implements INexeReader {
     this._logger.log("File has been loaded: ", { codeSize, bundleSize, files: this._virtualFileSystem?.length });
   }
 
-  *next(): Iterator<[Buffer, NexeVirtualFileSystemElement]> {
+  *next(): Iterator<[Buffer, BinaryVirtualFileSystemElement]> {
     const fsbuffer = this._bundleBuffer;
 
     if (!fsbuffer || !this._virtualFileSystem) {
@@ -76,7 +76,7 @@ export class NexeReader implements INexeReader {
       };
       const buffer = fsbuffer.subarray(e.from, e.from + e.to);
   
-      yield [ buffer, e ] as [Buffer, NexeVirtualFileSystemElement];
+      yield [ buffer, e ] as [Buffer, BinaryVirtualFileSystemElement];
     }
   }
 

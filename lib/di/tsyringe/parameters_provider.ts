@@ -4,7 +4,7 @@ import { IParameters } from "../../api/parameters";
 
 @injectable()
 export class ParametersProvider implements IParameters {
-  target?: string | undefined;
+  target!: string[];
   stdin!: boolean;
   stdout!: boolean;
   out!: string;

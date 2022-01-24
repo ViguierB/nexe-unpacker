@@ -3,7 +3,7 @@ import { Unpacker } from "../../unpacker/unpacker";
 import { ConsoleLogger } from "./console_logger";
 import { FileWriterFactoryProvider } from "./file_writer_factory_provider";
 import { LoaderProvider } from "./loader_provider";
-import { NexeReaderProvider } from "./nexe_reader_provider";
+import { NexeReaderFactoryProvider } from "./nexe_reader_factory_provider";
 import { ParametersProvider } from "./parameters_provider";
 
 @injectable() 
@@ -12,9 +12,9 @@ export class UnpackerProvider extends Unpacker {
     parameters: ParametersProvider,
     consoleLogger: ConsoleLogger,
     loaderProvider: LoaderProvider,
-    nexeReader: NexeReaderProvider,
+    nexeReaderFactory: NexeReaderFactoryProvider,
     fileWriterFactory: FileWriterFactoryProvider,
   ) {
-    super(parameters, consoleLogger, loaderProvider.fileLoader, nexeReader, fileWriterFactory.fileWriterFactory);
+    super(parameters, consoleLogger, loaderProvider.fileLoader, nexeReaderFactory, fileWriterFactory.fileWriterFactory);
   }
 }
