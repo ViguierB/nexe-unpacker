@@ -1,8 +1,9 @@
 import { LogLevel } from "./log_level";
 
 export interface IParameters {
-  target?: string,
+  target?: string[],
   stdin: boolean,
+  stdout: boolean,
   out: string,
   logLevel: LogLevel,
   archive: boolean,

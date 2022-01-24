@@ -4,15 +4,17 @@ import { promises as fs } from "fs";
 
 export class RegularFileLoader implements IFileLoader {
   constructor(
-    private _filename: string,
+    private _filenames: string[],
     private _logger: ILogger
   ) { }
   
-  async load(): Promise<Buffer> {
-    const buffer = await fs.readFile(this._filename, { flag: "r" });
-    
-    await this._logger.log(`${this._filename} has been successfully loaded`);
-    return buffer;
+  async load(): Promise<[Buffer, string][]> {
+    return Promise.all(this._filenames.map(async filename => {
+      const buffer = await fs.readFile(filename, { flag: "r" });
+      
+      await this._logger.log(`${filename} has been successfully loaded`);
+      return [ buffer, filename ];
+    }));
   }
   
 }

@@ -34,6 +34,11 @@ export async function getArgv(argv: string[]) {
       number: true,
       default: 9
     })
+    .options("stdout", {
+      boolean: true,
+      default: false,
+      desc: "the output archive is redirected to the standard output (only when --archive is activated)"
+    })
   
     .help();
 
@@ -41,9 +46,10 @@ export async function getArgv(argv: string[]) {
 
   parameters.logLevel = Math.min(procArgs.verbose, LogLevel.DEBUG);
   parameters.out = procArgs.out;
-  parameters.target = (procArgs._.filter(v => typeof v === "string") as string[])[0];
+  parameters.target = (procArgs._.filter(v => typeof v === "string") as string[]) || [];
   parameters.stdin = procArgs.stdin;
   parameters.archive = procArgs.archive;
+  parameters.stdout =  procArgs.archive && procArgs.stdout;
   parameters.compressionLevel = procArgs.compressionLevel;
 
   if (parameters.stdin) {

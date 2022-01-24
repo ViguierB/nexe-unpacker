@@ -18,8 +18,13 @@ export class ArchiveFileWriterFactory implements IFileWriterFactory {
     
   }
 
-  async prepare() {
+  private prepareFile() {
     this._output = fs.createWriteStream(this._parameters.out);
+    
+    return this._output;
+  }
+
+  async prepare() {
     this._archive = archiver('zip', {
       gzip: true,
       zlib: { level: this._parameters.compressionLevel }
@@ -29,7 +34,11 @@ export class ArchiveFileWriterFactory implements IFileWriterFactory {
       throw err;
     });
 
-    this._archive.pipe(this._output);
+    let out = (this._parameters.stdout)
+      ? process.stdout
+      : this.prepareFile()
+    
+    this._archive.pipe(out);
   }
 
   async addFile(filename: string): Promise<IFileWriter> {
