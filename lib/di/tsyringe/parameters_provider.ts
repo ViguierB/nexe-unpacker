@@ -6,6 +6,7 @@ import { IParameters } from "../../api/parameters";
 export class ParametersProvider implements IParameters {
   target?: string | undefined;
   stdin!: boolean;
+  stdout!: boolean;
   out!: string;
   logLevel!: LogLevel;
   archive!: boolean;
