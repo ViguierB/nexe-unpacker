@@ -1,6 +1,6 @@
 {
   "name": "nexe_unpacker",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A simple nexe unpacker",
   "main": "index.js",
   "bin": {
@@ -23,6 +23,17 @@
   },
   "homepage": "https://gitlab.holidev.net/ben/nexe-unpacker#readme",
   "license": "ISC",
+  "keywords": [
+    "nexe",
+    "unpacker",
+    "decompiler",
+    "tool",
+    "typescript",
+    "reverse",
+    "macos",
+    "linux",
+    "windows"
+  ],
   "devDependencies": {
     "@types/archiver": "^5.3.1",
     "@types/mocha": "^9.0.0",
